@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client"
+  output        = "../generated/prisma"
+  moduleFormat  = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =======================
+// ENUMS
+// =======================
+
+enum CampaignStatus {
+  DRAFT
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum EmailLogStatus {
+  SENT
+  FAILED
+}
+
+// =======================
+// MODELS
+// =======================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  refreshTokens RefreshToken[]
+  subscribers   Subscriber[]
+  campaigns     Campaign[]
+}
+
+model RefreshToken {
+  token     String   @id @db.VarChar(1000)
+  userId    String
+  expiredAt DateTime
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId])
+}
+
+model Subscriber {
+  id             String     @id @default(uuid())
+  email          String   
+  name           String     @db.VarChar(255)
+  nameNormalized String     @db.VarChar(255) @default("")
+  isActive       Boolean    @default(true)
+  userId         String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailLogs      EmailLog[]
+
+  // Một email chỉ xuất hiện 1 lần trên mỗi User (Admin)
+  @@unique([email, userId])
+  @@index([userId])
+  @@index([nameNormalized])
+}
+
+model Campaign {
+  id          String         @id @default(uuid())
+  title       String
+  subject     String
+  htmlContent String         @db.Text 
+  status      CampaignStatus @default(DRAFT)
+  scheduledAt DateTime?
+  userId      String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailLogs EmailLog[]
+
+  @@index([userId])
+}
+
+model EmailLog {
+  id           String         @id @default(uuid())
+  campaignId   String
+  subscriberId String
+  status       EmailLogStatus
+  errorDetail  String?        @db.Text 
+  sentAt       DateTime       @default(now())
+
+  campaign   Campaign   @relation(fields:[campaignId], references: [id], onDelete: Cascade)
+  subscriber Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([subscriberId])
+  @@index([status]) 
+}
