@@ -82,29 +82,49 @@ export class CampaignsRepo {
   }
 
   async sendEmails({ campaignId, userId }: { campaignId: string; userId: string }) {
-    const subscribers = await this.prismaService.subscriber.findMany({
+    const BATCH_SIZE = 500
+    let skip = 0
+    let hasMore = true
+
+    const sentLog = await this.prismaService.emailLog.findMany({
       where: {
-        userId,
+        campaignId,
+        status: EmailLogStatus.SENT,
+      },
+      select: {
+        subscriberId: true,
       },
     })
-    for (const subscriber of subscribers) {
-      const emailLog = await this.prismaService.emailLog.findUnique({
+    const sentSubscriberIds = new Set(sentLog.map((item) => item.subscriberId))
+
+    while (hasMore) {
+      const subscribers = await this.prismaService.subscriber.findMany({
         where: {
-          campaignId_subscriberId: {
-            campaignId,
-            subscriberId: subscriber.id,
-          },
+          userId,
+          isActive: true,
         },
+        skip,
+        take: BATCH_SIZE,
       })
-      if (emailLog && emailLog.status === EmailLogStatus.SENT) continue
-      try {
-        // Giả lập gửi email
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        console.log(`Đã gửi email đến ${subscriber.name}`)
-        await this.upsertEmailLog({ campaignId, subscriberId: subscriber.id, status: EmailLogStatus.SENT })
-      } catch {
-        await this.upsertEmailLog({ campaignId, subscriberId: subscriber.id, status: EmailLogStatus.FAILED })
+      if (subscribers.length === 0) {
+        hasMore = false
+        break
       }
+
+      const emailPromises = subscribers.map(async (subscriber) => {
+        try {
+          if (sentSubscriberIds.has(subscriber.id)) return
+          // Giả lập gửi email
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+          console.log(`Đã gửi email đến ${subscriber.name}`)
+          await this.upsertEmailLog({ campaignId, subscriberId: subscriber.id, status: EmailLogStatus.SENT })
+        } catch {
+          await this.upsertEmailLog({ campaignId, subscriberId: subscriber.id, status: EmailLogStatus.FAILED })
+        }
+      })
+
+      await Promise.allSettled(emailPromises)
+      skip += BATCH_SIZE
     }
   }
 

@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../services/prisma.service'
 import { SubscriberWhereInput } from 'generated/prisma/models'
 import { removeVietnameseTones } from 'src/common/helpers'
-import { GetSubcribersQueryType } from 'src/common/schemas/subscribers.schema'
+import { GetSubscribersQueryType } from 'src/common/schemas/subscribers.schema'
 
 @Injectable()
 export class SharedSubscriberRepo {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async list(userId: string, query: GetSubcribersQueryType) {
+  async list(userId: string, query: GetSubscribersQueryType) {
     const { page, limit } = query
     const skip = (page - 1) * limit
     const take = limit

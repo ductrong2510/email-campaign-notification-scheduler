@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import { CreateSubcriberReqType, SubcriberType, UpdateSubcriberReqType } from './subscribers.schema'
+import { CreateSubscriberReqType, SubscriberType, UpdateSubscriberReqType } from './subscribers.schema'
 import { SubscriberWhereUniqueInput } from 'generated/prisma/models'
 import { removeVietnameseTones } from 'src/common/helpers'
 
@@ -8,13 +8,13 @@ import { removeVietnameseTones } from 'src/common/helpers'
 export class SubscribersRepo {
   constructor(private readonly prismaService: PrismaService) {}
 
-  findUnique(where: SubscriberWhereUniqueInput): Promise<SubcriberType | null> {
+  findUnique(where: SubscriberWhereUniqueInput): Promise<SubscriberType | null> {
     return this.prismaService.subscriber.findUnique({
       where,
     })
   }
 
-  createOne(userId: string, data: CreateSubcriberReqType) {
+  createOne(userId: string, data: CreateSubscriberReqType) {
     return this.prismaService.subscriber.create({
       data: {
         ...data,
@@ -24,7 +24,7 @@ export class SubscribersRepo {
     })
   }
 
-  createMany(userId: string, data: CreateSubcriberReqType[]) {
+  createMany(userId: string, data: CreateSubscriberReqType[]) {
     return this.prismaService.subscriber.createMany({
       data: data.map((item) => {
         return {
@@ -37,7 +37,7 @@ export class SubscribersRepo {
     })
   }
 
-  update(subscriberId: string, data: UpdateSubcriberReqType) {
+  update(subscriberId: string, data: UpdateSubscriberReqType) {
     return this.prismaService.subscriber.update({
       where: {
         id: subscriberId,
@@ -47,7 +47,7 @@ export class SubscribersRepo {
   }
 
   delete({ subscriberId, userId }: { subscriberId: string; userId: string }) {
-    return this.prismaService.subscriber.delete({
+    return this.prismaService.subscriber.deleteMany({
       where: {
         id: subscriberId,
         userId,

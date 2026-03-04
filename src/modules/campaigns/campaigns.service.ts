@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { CampaignsRepo } from './campaigns.repo'
 import { CreateCampaignReqType, GetCampaignQueryType, UpdateCampaignReqType } from './campaigns.schema'
 import { isNotFoundPrismaError } from 'src/common/helpers'
@@ -63,22 +63,29 @@ export class CampaignsService {
       delay = campaign.scheduledAt.getTime() - now
     }
     if (scheduledAt) {
+      // Chấp nhận scheduledAt trong quá khứ do độ trễ khi gửi request
       delay = scheduledAt.getTime() > now ? scheduledAt.getTime() - now : 0
       await this.campaignsRepo.update(
         { campaignId, userId },
         { scheduledAt: scheduledAt.getTime() >= now ? scheduledAt : new Date() },
       )
     }
-    await this.emailQueue.add(
-      'email',
-      {
-        campaignId,
-        userId,
-      },
-      {
-        delay,
-      },
-    )
-    return await this.campaignsRepo.update({ campaignId, userId }, { status: CampaignStatus.PENDING })
+    const result = await this.campaignsRepo.update({ campaignId, userId }, { status: CampaignStatus.PENDING })
+    try {
+      await this.emailQueue.add(
+        'email',
+        {
+          campaignId,
+          userId,
+        },
+        {
+          delay,
+        },
+      )
+      return result
+    } catch (error) {
+      await this.campaignsRepo.update({ campaignId, userId }, { status: CampaignStatus.FAILED })
+      throw new InternalServerErrorException('Hệ thống hàng đợi đang lỗi, vui lòng thử lại')
+    }
   }
 }

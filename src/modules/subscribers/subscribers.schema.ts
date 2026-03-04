@@ -3,7 +3,7 @@ import { PaginationQuerySchema } from 'src/common/schemas/request.schema'
 import { GetListSchema } from 'src/common/schemas/response.schema'
 import z from 'zod'
 
-export const SubcriberSchema = z.object({
+export const SubscriberSchema = z.object({
   id: z.string(),
   email: z.string(),
   name: z.string(),
@@ -14,7 +14,7 @@ export const SubcriberSchema = z.object({
   updatedAt: z.coerce.date(),
 })
 
-export const GetSubscriberResSchema = SubcriberSchema.omit({
+export const GetSubscriberResSchema = SubscriberSchema.omit({
   nameNormalized: true,
 })
 
@@ -22,18 +22,18 @@ export const GetSubscribersResSchema = GetListSchema.extend({
   data: z.array(GetSubscriberResSchema),
 })
 
-export const CreateSubcriberReqSchema = SubcriberSchema.pick({
+export const CreateSubscriberReqSchema = SubscriberSchema.pick({
   email: true,
   name: true,
 }).strict()
 
-export const CreateSubcriberBulkReqSchema = z
+export const CreateSubscriberBulkReqSchema = z
   .object({
-    subcribers: z.array(CreateSubcriberReqSchema),
+    Subscribers: z.array(CreateSubscriberReqSchema),
   })
   .strict()
 
-export const UpdateSubcriberReqSchema = SubcriberSchema.pick({
+export const UpdateSubscriberReqSchema = SubscriberSchema.pick({
   email: true,
   name: true,
   isActive: true,
@@ -41,15 +41,15 @@ export const UpdateSubcriberReqSchema = SubcriberSchema.pick({
   .partial()
   .strict()
 
-export type SubcriberType = z.infer<typeof SubcriberSchema>
-export type CreateSubcriberReqType = z.infer<typeof CreateSubcriberReqSchema>
-export type CreateSubcriberBulkReqType = z.infer<typeof CreateSubcriberBulkReqSchema>
-export type UpdateSubcriberReqType = z.infer<typeof UpdateSubcriberReqSchema>
+export type SubscriberType = z.infer<typeof SubscriberSchema>
+export type CreateSubscriberReqType = z.infer<typeof CreateSubscriberReqSchema>
+export type CreateSubscriberBulkReqType = z.infer<typeof CreateSubscriberBulkReqSchema>
+export type UpdateSubscriberReqType = z.infer<typeof UpdateSubscriberReqSchema>
 export type GetSubscribersResType = z.infer<typeof GetSubscribersResSchema>
 export type GetSubscriberResType = z.infer<typeof GetSubscriberResSchema>
 
-export class CreateSubcriberReqDto extends createZodDto(CreateSubcriberReqSchema) {}
-export class CreateSubcriberBulkReqDto extends createZodDto(CreateSubcriberBulkReqSchema) {}
-export class UpdateSubcriberReqDto extends createZodDto(UpdateSubcriberReqSchema) {}
+export class CreateSubscriberReqDto extends createZodDto(CreateSubscriberReqSchema) {}
+export class CreateSubscriberBulkReqDto extends createZodDto(CreateSubscriberBulkReqSchema) {}
+export class UpdateSubscriberReqDto extends createZodDto(UpdateSubscriberReqSchema) {}
 export class GetSubscribersResDto extends createZodDto(GetSubscribersResSchema) {}
 export class GetSubscriberResDto extends createZodDto(GetSubscriberResSchema) {}

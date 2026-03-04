@@ -95,6 +95,7 @@ model Campaign {
 
   @@index([userId])
   @@index([titleNormalized])
+  @@unique([id, userId])
 }
 
 model EmailLog {
@@ -110,5 +111,5 @@ model EmailLog {
 
   @@unique([campaignId, subscriberId]) 
   @@index([subscriberId])
-  @@index([status]) 
+  @@index([campaignId, status]) 
 }

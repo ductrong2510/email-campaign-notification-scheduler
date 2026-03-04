@@ -4,7 +4,7 @@ import { CampaignsRepo } from './campaigns.repo'
 import { CampaignStatus, CampaignStatusType } from 'src/common/constants/campaign.constants'
 
 @Processor('email')
-export class CampaignComsumer extends WorkerHost {
+export class CampaignConsumer extends WorkerHost {
   constructor(private readonly campaignsRepo: CampaignsRepo) {
     super()
   }
