@@ -14,6 +14,7 @@ const ConfigSchema = z.object({
   REFRESH_TOKEN_SECRET: z.string(),
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_EXPIRES_IN: z.string(),
+  REDIS_URL: z.string(),
 })
 
 const configServer = ConfigSchema.safeParse(process.env)

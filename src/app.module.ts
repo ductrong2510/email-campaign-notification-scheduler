@@ -4,10 +4,11 @@ import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
 import { SharedModule } from './shared/shared.module'
 import { CommonModule } from './common/common.module'
-import { SubscribersModule } from './modules/subscribers/subscribers.module';
+import { SubscribersModule } from './modules/subscribers/subscribers.module'
+import { CampaignsModule } from './modules/campaigns/campaigns.module'
 
 @Module({
-  imports: [AuthModule, SharedModule, CommonModule, SubscribersModule],
+  imports: [AuthModule, SharedModule, CommonModule, SubscribersModule, CampaignsModule],
   controllers: [AppController],
   providers: [AppService],
 })

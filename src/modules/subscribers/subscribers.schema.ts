@@ -33,11 +33,6 @@ export const CreateSubcriberBulkReqSchema = z
   })
   .strict()
 
-export const GetSubcribersQuerySchema = PaginationQuerySchema.extend({
-  isActive: z.coerce.boolean().optional(),
-  search: z.string().optional(),
-}).strict()
-
 export const UpdateSubcriberReqSchema = SubcriberSchema.pick({
   email: true,
   name: true,
@@ -49,14 +44,12 @@ export const UpdateSubcriberReqSchema = SubcriberSchema.pick({
 export type SubcriberType = z.infer<typeof SubcriberSchema>
 export type CreateSubcriberReqType = z.infer<typeof CreateSubcriberReqSchema>
 export type CreateSubcriberBulkReqType = z.infer<typeof CreateSubcriberBulkReqSchema>
-export type GetSubcribersQueryType = z.infer<typeof GetSubcribersQuerySchema>
 export type UpdateSubcriberReqType = z.infer<typeof UpdateSubcriberReqSchema>
 export type GetSubscribersResType = z.infer<typeof GetSubscribersResSchema>
 export type GetSubscriberResType = z.infer<typeof GetSubscriberResSchema>
 
 export class CreateSubcriberReqDto extends createZodDto(CreateSubcriberReqSchema) {}
 export class CreateSubcriberBulkReqDto extends createZodDto(CreateSubcriberBulkReqSchema) {}
-export class GetSubcribersQueryDto extends createZodDto(GetSubcribersQuerySchema) {}
 export class UpdateSubcriberReqDto extends createZodDto(UpdateSubcriberReqSchema) {}
 export class GetSubscribersResDto extends createZodDto(GetSubscribersResSchema) {}
 export class GetSubscriberResDto extends createZodDto(GetSubscriberResSchema) {}

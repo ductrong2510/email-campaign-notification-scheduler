@@ -6,21 +6,21 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common'
 import { SubscribersRepo } from './subscribers.repo'
-import {
-  CreateSubcriberBulkReqType,
-  CreateSubcriberReqType,
-  GetSubcribersQueryType,
-  UpdateSubcriberReqType,
-} from './subscribers.schema'
+import { CreateSubcriberBulkReqType, CreateSubcriberReqType, UpdateSubcriberReqType } from './subscribers.schema'
 import {
   isForeignKeyConstraintPrismaError,
   isNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from 'src/common/helpers'
+import { SharedSubscriberRepo } from 'src/shared/repositories/shared-subscribers.repo'
+import { GetSubcribersQueryType } from 'src/common/schemas/subscribers.schema'
 
 @Injectable()
 export class SubscribersService {
-  constructor(private readonly subscribersRepo: SubscribersRepo) {}
+  constructor(
+    private readonly subscribersRepo: SubscribersRepo,
+    private readonly sharedSubscriberRepo: SharedSubscriberRepo,
+  ) {}
 
   async createOne(userId: string, data: CreateSubcriberReqType) {
     try {
@@ -45,7 +45,7 @@ export class SubscribersService {
   }
 
   list(userId: string, query: GetSubcribersQueryType) {
-    return this.subscribersRepo.list(userId, query)
+    return this.sharedSubscriberRepo.list(userId, query)
   }
 
   async update({ subscriberId, userId, data }: { subscriberId: string; userId: string; data: UpdateSubcriberReqType }) {

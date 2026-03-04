@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import {
-  CreateSubcriberReqType,
-  GetSubcribersQueryType,
-  SubcriberType,
-  UpdateSubcriberReqType,
-} from './subscribers.schema'
-import { SubscriberWhereInput, SubscriberWhereUniqueInput } from 'generated/prisma/models'
+import { CreateSubcriberReqType, SubcriberType, UpdateSubcriberReqType } from './subscribers.schema'
+import { SubscriberWhereUniqueInput } from 'generated/prisma/models'
 import { removeVietnameseTones } from 'src/common/helpers'
 
 @Injectable()
@@ -17,54 +12,6 @@ export class SubscribersRepo {
     return this.prismaService.subscriber.findUnique({
       where,
     })
-  }
-
-  async list(userId: string, query: GetSubcribersQueryType) {
-    const { page, limit } = query
-    const skip = (page - 1) * limit
-    const take = limit
-    const where: SubscriberWhereInput = {
-      userId,
-    }
-    if (query.isActive) {
-      where.isActive = query.isActive
-    }
-    if (query.search) {
-      const normalizedKeyword = removeVietnameseTones(query.search)
-      where.OR = [
-        {
-          nameNormalized: {
-            contains: normalizedKeyword,
-          },
-        },
-        {
-          email: {
-            contains: normalizedKeyword,
-            mode: 'insensitive',
-          },
-        },
-      ]
-    }
-    const [count, data] = await Promise.all([
-      this.prismaService.subscriber.count({
-        where,
-      }),
-      this.prismaService.subscriber.findMany({
-        where,
-        orderBy: {
-          createdAt: 'desc',
-        },
-        skip,
-        take,
-      }),
-    ])
-    return {
-      data,
-      page,
-      limit,
-      totalItems: count,
-      totalPages: Math.ceil(count / limit),
-    }
   }
 
   createOne(userId: string, data: CreateSubcriberReqType) {
@@ -95,7 +42,7 @@ export class SubscribersRepo {
       where: {
         id: subscriberId,
       },
-      data,
+      data: data.name ? { ...data, nameNormalized: removeVietnameseTones(data.name) } : data,
     })
   }
 

@@ -5,12 +5,12 @@ import { ResponseMessage } from 'src/common/decorators/response-message.decorato
 import {
   CreateSubcriberBulkReqDto,
   CreateSubcriberReqDto,
-  GetSubcribersQueryDto,
   GetSubscriberResDto,
   GetSubscribersResDto,
   UpdateSubcriberReqDto,
 } from './subscribers.schema'
 import { ZodSerializerDto } from 'nestjs-zod'
+import { GetSubcribersQueryDto } from 'src/common/schemas/subscribers.schema'
 
 @Controller('subscribers')
 export class SubscribersController {
