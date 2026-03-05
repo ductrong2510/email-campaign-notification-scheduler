@@ -15,19 +15,19 @@ export class CampaignConsumer extends WorkerHost {
 
   @OnWorkerEvent('active')
   async onActive(job: Job) {
-    console.log(`${job.id} đã active`)
+    console.log(`Job ${job.id} đã active`)
     await this.campaignsRepo.update(job.data, { status: CampaignStatus.PROCESSING })
   }
 
   @OnWorkerEvent('completed')
   async onCompleted(job: Job) {
-    console.log(`${job.id} đã complete`)
+    console.log(`Job ${job.id} đã complete`)
     await this.campaignsRepo.update(job.data, { status: CampaignStatus.COMPLETED })
   }
 
   @OnWorkerEvent('failed')
   async onFailed(job: Job) {
-    console.log(`${job.id} đã fail`)
+    console.log(`Job ${job.id} đã fail`)
     await this.campaignsRepo.update(job.data, { status: CampaignStatus.FAILED })
   }
 }

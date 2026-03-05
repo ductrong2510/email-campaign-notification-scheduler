@@ -1,10 +1,10 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { CampaignsRepo } from './campaigns.repo'
 import { CreateCampaignReqType, GetCampaignQueryType, UpdateCampaignReqType } from './campaigns.schema'
 import { isNotFoundPrismaError } from 'src/common/helpers'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Queue } from 'bullmq'
-import { CampaignStatus } from 'src/common/constants/campaign.constants'
+import { CampaignStatus, CampaignStatusType } from 'src/common/constants/campaign.constants'
 
 @Injectable()
 export class CampaignsService {
@@ -56,6 +56,14 @@ export class CampaignsService {
     const campaign = await this.campaignsRepo.findOne({ id: campaignId, userId })
     if (!campaign) {
       throw new NotFoundException('Campaign không tồn tại')
+    }
+    const BLOCKED_STATUSES: CampaignStatusType[] = [
+      CampaignStatus.COMPLETED,
+      CampaignStatus.PENDING,
+      CampaignStatus.PROCESSING,
+    ]
+    if (BLOCKED_STATUSES.includes(campaign.status)) {
+      throw new BadRequestException(`Campaign hiện tại ở trạng thái ${campaign.status}, không thể thực hiện yêu cầu`)
     }
     const now = Date.now()
     let delay = 0

@@ -73,7 +73,7 @@ export class CampaignsRepo {
   }
 
   delete({ campaignId, userId }: { campaignId: string; userId: string }) {
-    return this.prismaService.campaign.delete({
+    return this.prismaService.campaign.deleteMany({
       where: {
         id: campaignId,
         userId,
